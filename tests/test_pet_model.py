@@ -1,6 +1,7 @@
 """Tests for Pet model."""
 
 import unittest
+from unittest.mock import patch
 
 from src.pet_model import Pet, Stage
 
@@ -33,6 +34,38 @@ class TestPetModel(unittest.TestCase):
         pet = Pet()
         pet.tick(65)
         self.assertEqual(pet.stage, Stage.CHILD)
+
+    def test_tick_sickness_from_poop(self) -> None:
+        pet = Pet()
+        pet.poop_count = 3
+        with patch('random.choice', return_value=1):
+            pet.tick()
+        self.assertTrue(pet.is_sick)
+        self.assertEqual(pet.medicine_doses_left, 1)
+
+    def test_tick_sickness_from_weight(self) -> None:
+        pet = Pet()
+        pet.weight = 25
+        with patch('random.choice', return_value=2):
+            pet.tick()
+        self.assertTrue(pet.is_sick)
+        self.assertEqual(pet.medicine_doses_left, 2)
+
+    def test_medicine_two_doses(self) -> None:
+        pet = Pet()
+        pet.is_sick = True
+        pet.medicine_doses_left = 2
+        pet.give_medicine()
+        self.assertTrue(pet.is_sick)
+        pet.give_medicine()
+        self.assertFalse(pet.is_sick)
+
+    def test_medicine_single_dose(self) -> None:
+        pet = Pet()
+        pet.is_sick = True
+        pet.medicine_doses_left = 1
+        pet.give_medicine()
+        self.assertFalse(pet.is_sick)
 
 
 if __name__ == "__main__":

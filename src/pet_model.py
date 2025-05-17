@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
+import random
 
 
 class Stage(Enum):
@@ -33,6 +34,7 @@ class Pet:
     minutes_since_last_hunger: int = field(default=0, init=False)
     minutes_since_last_happy: int = field(default=0, init=False)
     minutes_since_last_poop: int = field(default=0, init=False)
+    medicine_doses_left: int = field(default=0, init=False)
 
     def tick(self, minutes: int = 1) -> None:
         """Advance time for the pet by the given number of minutes."""
@@ -60,6 +62,10 @@ class Pet:
                 self.poop_count += 1
                 self.minutes_since_last_poop = 0
 
+            if (self.poop_count >= 3 or self.weight > 20) and not self.is_sick:
+                self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
+
             self._maybe_evolve()
 
     def feed(self, food_type: str) -> bool:
@@ -74,8 +80,9 @@ class Pet:
             if self.happiness_hearts < 4:
                 self.happiness_hearts += 1
             self.weight += 2
-            if self.weight > 20:
+            if self.weight > 20 and not self.is_sick:
                 self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
             return True
         return False
 
@@ -93,7 +100,10 @@ class Pet:
     def give_medicine(self) -> None:
         """Cure the pet if it is sick."""
         if self.is_sick:
-            self.is_sick = False
+            if self.medicine_doses_left > 0:
+                self.medicine_doses_left -= 1
+            if self.medicine_doses_left <= 0:
+                self.is_sick = False
 
     def discipline(self) -> None:
         """Discipline the pet."""
