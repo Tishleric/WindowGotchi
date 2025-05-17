@@ -27,6 +27,7 @@ class WindowGotchiApp:
         tk.Button(btn_frame, text="Play", command=self.play).pack(side=tk.LEFT)
         tk.Button(btn_frame, text="Clean", command=self.clean).pack(side=tk.LEFT)
         tk.Button(btn_frame, text="Medicine", command=self.medicine).pack(side=tk.LEFT)
+        tk.Button(btn_frame, text="Discipline", command=self.discipline).pack(side=tk.LEFT)
         self.timer = PetTimer(self.pet, interval_seconds=60)
         self.timer.start()
         self.update_status()
@@ -41,8 +42,11 @@ class WindowGotchiApp:
         self.status.set(
             f"Stage: {self.pet.stage.value} Age(min): {self.pet.age_minutes}\n"
             f"Hungry: {self.pet.hunger_hearts}/4 Happy: {self.pet.happiness_hearts}/4\n"
-            f"Weight: {self.pet.weight} Poop: {self.pet.poop_count}"
+            f"Weight: {self.pet.weight} Poop: {self.pet.poop_count}\n"
+            f"Discipline: {self.pet.discipline_percent}%"
         )
+        if self.pet.misbehaving:
+            self.status.set(self.status.get() + "\nMISBEHAVING!")
         if self.pet.hunger_hearts == 0 or self.pet.happiness_hearts == 0:
             self.nm.notify("WindowGotchi", "Needs attention!")
             self.am.play_sound("alert")
@@ -73,6 +77,11 @@ class WindowGotchiApp:
     def medicine(self) -> None:
         self.pet.give_medicine()
         self.am.play_sound("medicine")
+        self.update_status()
+
+    def discipline(self) -> None:
+        self.pet.discipline()
+        self.am.play_sound("alert")
         self.update_status()
 
 
