@@ -8,6 +8,7 @@ from src.notification_manager import NotificationManager
 from src.persistence import load_pet, save_pet
 from src.pet_model import Pet
 from src.timer_service import PetTimer
+from src.game_window import GuessGameWindow
 
 
 class WindowGotchiApp:
@@ -61,9 +62,8 @@ class WindowGotchiApp:
         self.update_status()
 
     def play(self) -> None:
-        self.pet.play_game(rounds_won=3)
         self.am.play_sound("game")
-        self.update_status()
+        GuessGameWindow(self.root, self.pet, on_close=self.update_status)
 
     def clean(self) -> None:
         self.pet.clean_poop()
