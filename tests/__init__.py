@@ -1,0 +1,3 @@
+"""
+WindowGotchi test module
+"""
