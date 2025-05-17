@@ -1,0 +1,2 @@
+# WindowGotchi dependencies
+# Add project dependencies here
