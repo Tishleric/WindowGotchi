@@ -1,6 +1,7 @@
 # WindowGotchi
 
-A Python application for window management.
+A simple desktop virtual pet inspired by Tamagotchi. The prototype is written in
+Python using Tkinter for the UI.
 
 ## Setup
 
