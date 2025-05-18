@@ -1,3 +1,4 @@
+
 """Notification manager with optional system tray integration."""
 
 from __future__ import annotations
@@ -110,3 +111,4 @@ class NotificationManager:
         if self._tray_icon is not None:
             self._tray_icon.stop()
             self._tray_icon = None
+

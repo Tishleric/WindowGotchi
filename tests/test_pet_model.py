@@ -1,9 +1,16 @@
 """Tests for Pet model."""
 
 import unittest
-from unittest.mock import patch
 
-from src.pet_model import Pet, Stage
+
+from src.pet_model import (
+    Pet,
+    Stage,
+    HATCH_TIME_MINUTES,
+    MAX_AGE_MINUTES,
+    MAX_CARE_MISTAKES,
+)
+
 
 
 class TestPetModel(unittest.TestCase):
@@ -44,6 +51,7 @@ class TestPetModel(unittest.TestCase):
         pet.tick(65)
         self.assertEqual(pet.stage, Stage.CHILD)
 
+
     def test_tick_sickness_from_poop(self) -> None:
         pet = Pet()
         pet.poop_count = 3
@@ -75,6 +83,7 @@ class TestPetModel(unittest.TestCase):
         pet.medicine_doses_left = 1
         pet.give_medicine()
         self.assertFalse(pet.is_sick)
+
 
 
 if __name__ == "__main__":

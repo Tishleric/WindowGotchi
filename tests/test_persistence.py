@@ -3,7 +3,9 @@
 import os
 import unittest
 
+
 from src.pet_model import Pet, Stage
+
 from src.persistence import load_pet, save_pet
 
 
@@ -25,12 +27,16 @@ class TestPersistence(unittest.TestCase):
         save_pet(pet, self.path)
         loaded = load_pet(self.path)
         self.assertEqual(loaded.hunger_hearts, 2)
+
         self.assertEqual(loaded.stage, pet.stage)
+
 
     def test_load_new_when_missing(self) -> None:
         pet = load_pet(self.path)
         self.assertIsInstance(pet, Pet)
+
         self.assertEqual(pet.stage, Stage.EGG)
+
 
 
 if __name__ == "__main__":

@@ -6,9 +6,10 @@ import tkinter as tk
 from src.audio_manager import AudioManager
 from src.notification_manager import NotificationManager
 from src.persistence import load_pet, save_pet
-from src.pet_model import Pet
+
+from src.pet_model import Pet, Stage
 from src.timer_service import PetTimer
-from src.game_window import GuessGameWindow
+
 
 
 class WindowGotchiApp:
@@ -44,6 +45,11 @@ class WindowGotchiApp:
             f"Hungry: {self.pet.hunger_hearts}/4 Happy: {self.pet.happiness_hearts}/4\n"
             f"Weight: {self.pet.weight} Poop: {self.pet.poop_count}"
         )
+
+        if self.pet.stage == Stage.DEAD:
+            self.nm.notify("WindowGotchi", "Your pet has passed away.")
+            return
+
         if self.pet.hunger_hearts == 0 or self.pet.happiness_hearts == 0:
             self.nm.notify("WindowGotchi", "Needs attention!")
             self.am.play_sound("alert")
@@ -62,8 +68,11 @@ class WindowGotchiApp:
         self.update_status()
 
     def play(self) -> None:
+
+        self.pet.play_game(rounds_won=3)
         self.am.play_sound("game")
-        GuessGameWindow(self.root, self.pet, on_close=self.update_status)
+        self.update_status()
+
 
     def clean(self) -> None:
         self.pet.clean_poop()
