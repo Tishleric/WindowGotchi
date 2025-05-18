@@ -5,10 +5,26 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
 
+# Evolution and lifespan thresholds (in minutes)
+CHILD_AGE_MINUTES = 65
+TEEN_AGE_MINUTES = 3 * 24 * 60
+ADULT_AGE_MINUTES = 6 * 24 * 60
+# The pet will die after this many minutes minus a penalty per care mistake
+BASE_LIFESPAN_MINUTES = 10 * 24 * 60
+CARE_MISTAKE_PENALTY_MINUTES = 24 * 60
+
+
+# lifecycle constants
+HATCH_TIME_MINUTES = 5
+MAX_AGE_MINUTES = 10 * 24 * 60
+MAX_CARE_MISTAKES = 5
+
+
 
 class Stage(Enum):
     """Life stages for the pet."""
 
+    EGG = "Egg"
     BABY = "Baby"
     CHILD = "Child"
     TEEN = "Teen"
@@ -21,7 +37,7 @@ class Pet:
     """Represents a virtual pet and its state."""
 
     age_minutes: int = 0
-    stage: Stage = Stage.BABY
+    stage: Stage = Stage.EGG
     hunger_hearts: int = 4
     happiness_hearts: int = 4
     discipline_percent: int = 0
@@ -39,8 +55,18 @@ class Pet:
     minutes_since_last_happy: int = field(default=0, init=False)
     minutes_since_last_poop: int = field(default=0, init=False)
 
+
+    @property
+    def age_days(self) -> int:
+        """Return the pet's age in whole days."""
+        return self.age_minutes // (24 * 60)
+
+
     def tick(self, minutes: int = 1) -> None:
         """Advance time for the pet by the given number of minutes."""
+        if self.stage == Stage.DEAD:
+            return
+
         for _ in range(minutes):
             self.age_minutes += 1
             self.minutes_since_last_hunger += 1
@@ -79,6 +105,7 @@ class Pet:
                     self.misbehaving = False
                     self.minutes_misbehaving = 0
 
+
             self._maybe_evolve()
 
     def feed(self, food_type: str) -> bool:
@@ -93,8 +120,11 @@ class Pet:
             if self.happiness_hearts < 4:
                 self.happiness_hearts += 1
             self.weight += 2
-            if self.weight > 20:
+
+            if self.weight > 20 and not self.is_sick:
                 self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
+
             return True
         return False
 
@@ -112,7 +142,12 @@ class Pet:
     def give_medicine(self) -> None:
         """Cure the pet if it is sick."""
         if self.is_sick:
-            self.is_sick = False
+
+            if self.medicine_doses_left > 0:
+                self.medicine_doses_left -= 1
+            if self.medicine_doses_left <= 0:
+                self.is_sick = False
+
 
     def discipline(self) -> None:
         """Discipline the pet."""
@@ -122,13 +157,21 @@ class Pet:
         self.discipline_percent = min(100, self.discipline_percent + 25)
 
     def _maybe_evolve(self) -> None:
-        """Handle stage evolution based on age."""
-        if self.stage == Stage.BABY and self.age_minutes >= 65:
+
+        """Handle stage evolution and death based on age."""
+        if self.stage == Stage.BABY and self.age_minutes >= CHILD_AGE_MINUTES:
+
             self.stage = Stage.CHILD
-        elif self.stage == Stage.CHILD and self.age_minutes >= 3 * 24 * 60:
+        elif self.stage == Stage.CHILD and self.age_minutes >= TEEN_AGE_MINUTES:
             self.stage = Stage.TEEN
-        elif self.stage == Stage.TEEN and self.age_minutes >= 6 * 24 * 60:
+        elif self.stage == Stage.TEEN and self.age_minutes >= ADULT_AGE_MINUTES:
             self.stage = Stage.ADULT
+
+        lifespan = BASE_LIFESPAN_MINUTES - self.care_mistakes * CARE_MISTAKE_PENALTY_MINUTES
+        lifespan = max(ADULT_AGE_MINUTES, lifespan)
+        if self.age_minutes >= lifespan and self.stage != Stage.DEAD:
+            self.stage = Stage.DEAD
+
 
     def to_dict(self) -> Dict[str, object]:
         """Return a dictionary representing this pet."""
@@ -149,7 +192,7 @@ class Pet:
         """Create a Pet from saved data."""
         pet = cls()
         pet.age_minutes = int(data.get("age_minutes", 0))
-        pet.stage = Stage(data.get("stage", Stage.BABY.value))
+        pet.stage = Stage(data.get("stage", Stage.EGG.value))
         pet.hunger_hearts = int(data.get("hunger_hearts", 4))
         pet.happiness_hearts = int(data.get("happiness_hearts", 4))
         pet.discipline_percent = int(data.get("discipline_percent", 0))
