@@ -1,6 +1,7 @@
 """Tests for Pet model."""
 
 import unittest
+from unittest.mock import patch
 
 
 from src.pet_model import (

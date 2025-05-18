@@ -1,6 +1,7 @@
 """Tests for managers."""
 
 import unittest
+from unittest.mock import patch
 
 
 from src.audio_manager import AudioManager
