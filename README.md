@@ -3,6 +3,7 @@
 A simple desktop virtual pet inspired by Tamagotchi. The prototype is written in
 Python using Tkinter for the UI.
 
+
 ## Setup
 
 ```bash
@@ -26,3 +27,4 @@ python -m unittest discover -v
 - `main.py`: Main entry point
 - `src/`: Source code modules
 - `tests/`: Test files
+

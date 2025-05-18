@@ -5,10 +5,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
 
+
 # lifecycle constants
 HATCH_TIME_MINUTES = 5
 MAX_AGE_MINUTES = 10 * 24 * 60
 MAX_CARE_MISTAKES = 5
+
 
 
 class Stage(Enum):
@@ -40,10 +42,12 @@ class Pet:
     minutes_since_last_happy: int = field(default=0, init=False)
     minutes_since_last_poop: int = field(default=0, init=False)
 
+
     def tick(self, minutes: int = 1) -> None:
         """Advance time for the pet by the given number of minutes."""
         if self.stage == Stage.DEAD:
             return
+
         for _ in range(minutes):
             self.age_minutes += 1
             self.minutes_since_last_hunger += 1
@@ -68,6 +72,7 @@ class Pet:
                 self.poop_count += 1
                 self.minutes_since_last_poop = 0
 
+
             self._maybe_evolve()
 
     def feed(self, food_type: str) -> bool:
@@ -82,8 +87,11 @@ class Pet:
             if self.happiness_hearts < 4:
                 self.happiness_hearts += 1
             self.weight += 2
-            if self.weight > 20:
+
+            if self.weight > 20 and not self.is_sick:
                 self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
+
             return True
         return False
 
@@ -101,7 +109,12 @@ class Pet:
     def give_medicine(self) -> None:
         """Cure the pet if it is sick."""
         if self.is_sick:
-            self.is_sick = False
+
+            if self.medicine_doses_left > 0:
+                self.medicine_doses_left -= 1
+            if self.medicine_doses_left <= 0:
+                self.is_sick = False
+
 
     def discipline(self) -> None:
         """Discipline the pet."""
@@ -109,7 +122,9 @@ class Pet:
 
     def _maybe_evolve(self) -> None:
         """Handle stage evolution based on age."""
+
         if self.stage == Stage.EGG and self.age_minutes >= HATCH_TIME_MINUTES:
+
             self.stage = Stage.BABY
         elif self.stage == Stage.BABY and self.age_minutes >= 65:
             self.stage = Stage.CHILD
@@ -118,10 +133,12 @@ class Pet:
         elif self.stage == Stage.TEEN and self.age_minutes >= 6 * 24 * 60:
             self.stage = Stage.ADULT
 
+
         if self.stage == Stage.ADULT and self.age_minutes >= MAX_AGE_MINUTES:
             self.stage = Stage.DEAD
         if self.care_mistakes > MAX_CARE_MISTAKES:
             self.stage = Stage.DEAD
+
 
     def to_dict(self) -> Dict[str, object]:
         """Return a dictionary representing this pet."""
