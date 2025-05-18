@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
+import random
 
 # Evolution and lifespan thresholds (in minutes)
 CHILD_AGE_MINUTES = 65
@@ -72,6 +73,17 @@ class Pet:
             self.minutes_since_last_hunger += 1
             self.minutes_since_last_happy += 1
             self.minutes_since_last_poop += 1
+
+            if self.stage == Stage.EGG and self.age_minutes >= HATCH_TIME_MINUTES:
+                self.stage = Stage.BABY
+
+            if self.poop_count >= 3 and not self.is_sick:
+                self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
+
+            if self.weight > 20 and not self.is_sick:
+                self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
 
             if self.minutes_since_last_hunger >= 60:
                 if self.hunger_hearts > 0:
