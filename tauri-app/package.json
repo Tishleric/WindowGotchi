@@ -1,0 +1,16 @@
+{
+  "name": "windowgotchi-tauri",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "tauri": "tauri dev",
+    "tauri-build": "tauri build"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@tauri-apps/cli": "^1.2.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.2.0"
+  }
+}

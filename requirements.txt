@@ -1,2 +1,4 @@
 # WindowGotchi dependencies
-# Add project dependencies here
+plyer
+pystray
+Pillow
