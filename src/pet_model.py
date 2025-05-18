@@ -5,6 +5,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
 
+# Evolution and lifespan thresholds (in minutes)
+CHILD_AGE_MINUTES = 65
+TEEN_AGE_MINUTES = 3 * 24 * 60
+ADULT_AGE_MINUTES = 6 * 24 * 60
+# The pet will die after this many minutes minus a penalty per care mistake
+BASE_LIFESPAN_MINUTES = 10 * 24 * 60
+CARE_MISTAKE_PENALTY_MINUTES = 24 * 60
+
 
 # lifecycle constants
 HATCH_TIME_MINUTES = 5
@@ -41,6 +49,12 @@ class Pet:
     minutes_since_last_hunger: int = field(default=0, init=False)
     minutes_since_last_happy: int = field(default=0, init=False)
     minutes_since_last_poop: int = field(default=0, init=False)
+
+
+    @property
+    def age_days(self) -> int:
+        """Return the pet's age in whole days."""
+        return self.age_minutes // (24 * 60)
 
 
     def tick(self, minutes: int = 1) -> None:
@@ -121,22 +135,19 @@ class Pet:
         self.discipline_percent = min(100, self.discipline_percent + 25)
 
     def _maybe_evolve(self) -> None:
-        """Handle stage evolution based on age."""
 
-        if self.stage == Stage.EGG and self.age_minutes >= HATCH_TIME_MINUTES:
+        """Handle stage evolution and death based on age."""
+        if self.stage == Stage.BABY and self.age_minutes >= CHILD_AGE_MINUTES:
 
-            self.stage = Stage.BABY
-        elif self.stage == Stage.BABY and self.age_minutes >= 65:
             self.stage = Stage.CHILD
-        elif self.stage == Stage.CHILD and self.age_minutes >= 3 * 24 * 60:
+        elif self.stage == Stage.CHILD and self.age_minutes >= TEEN_AGE_MINUTES:
             self.stage = Stage.TEEN
-        elif self.stage == Stage.TEEN and self.age_minutes >= 6 * 24 * 60:
+        elif self.stage == Stage.TEEN and self.age_minutes >= ADULT_AGE_MINUTES:
             self.stage = Stage.ADULT
 
-
-        if self.stage == Stage.ADULT and self.age_minutes >= MAX_AGE_MINUTES:
-            self.stage = Stage.DEAD
-        if self.care_mistakes > MAX_CARE_MISTAKES:
+        lifespan = BASE_LIFESPAN_MINUTES - self.care_mistakes * CARE_MISTAKE_PENALTY_MINUTES
+        lifespan = max(ADULT_AGE_MINUTES, lifespan)
+        if self.age_minutes >= lifespan and self.stage != Stage.DEAD:
             self.stage = Stage.DEAD
 
 
