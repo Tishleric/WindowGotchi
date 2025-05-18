@@ -45,6 +45,7 @@ class Pet:
     weight: int = 5
     care_mistakes: int = 0
     is_sick: bool = False
+    medicine_doses_left: int = 0
     poop_count: int = 0
 
     # discipline / misbehavior tracking
@@ -106,6 +107,9 @@ class Pet:
                     self.misbehaving = False
                     self.minutes_misbehaving = 0
 
+            if not self.is_sick and (self.poop_count >= 3 or self.weight >= 25):
+                self.is_sick = True
+                self.medicine_doses_left = random.choice([1, 2])
 
             self._maybe_evolve()
 
@@ -160,8 +164,9 @@ class Pet:
     def _maybe_evolve(self) -> None:
 
         """Handle stage evolution and death based on age."""
-        if self.stage == Stage.BABY and self.age_minutes >= CHILD_AGE_MINUTES:
-
+        if self.stage == Stage.EGG and self.age_minutes >= HATCH_TIME_MINUTES:
+            self.stage = Stage.BABY
+        elif self.stage == Stage.BABY and self.age_minutes >= CHILD_AGE_MINUTES:
             self.stage = Stage.CHILD
         elif self.stage == Stage.CHILD and self.age_minutes >= TEEN_AGE_MINUTES:
             self.stage = Stage.TEEN
@@ -185,6 +190,7 @@ class Pet:
             "weight": self.weight,
             "care_mistakes": self.care_mistakes,
             "is_sick": self.is_sick,
+            "medicine_doses_left": self.medicine_doses_left,
             "poop_count": self.poop_count,
         }
 
@@ -200,5 +206,6 @@ class Pet:
         pet.weight = int(data.get("weight", 5))
         pet.care_mistakes = int(data.get("care_mistakes", 0))
         pet.is_sick = bool(data.get("is_sick", False))
+        pet.medicine_doses_left = int(data.get("medicine_doses_left", 0))
         pet.poop_count = int(data.get("poop_count", 0))
         return pet

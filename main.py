@@ -19,6 +19,7 @@ class WindowGotchiApp:
         self.root = root
         self.pet: Pet = load_pet()
         self.nm = NotificationManager()
+        self.nm.start_tray_icon()
         self.am = AudioManager()
         self.status = tk.StringVar()
         tk.Label(root, textvariable=self.status, font=("Courier", 12)).pack(pady=10)
