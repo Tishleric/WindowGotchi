@@ -52,6 +52,7 @@ class TestPetModel(unittest.TestCase):
         pet.tick(65)
         self.assertEqual(pet.stage, Stage.CHILD)
 
+
     def test_evolution_to_teen_and_adult(self) -> None:
         pet = Pet()
         pet.stage = Stage.CHILD
@@ -111,6 +112,7 @@ class TestPetModel(unittest.TestCase):
         pet.medicine_doses_left = 1
         pet.give_medicine()
         self.assertFalse(pet.is_sick)
+
 
 
 

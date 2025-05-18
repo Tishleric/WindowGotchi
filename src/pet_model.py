@@ -46,6 +46,11 @@ class Pet:
     is_sick: bool = False
     poop_count: int = 0
 
+    # discipline / misbehavior tracking
+    misbehaving: bool = field(default=False, init=False)
+    minutes_since_last_misbehavior_check: int = field(default=0, init=False)
+    minutes_misbehaving: int = field(default=0, init=False)
+
     minutes_since_last_hunger: int = field(default=0, init=False)
     minutes_since_last_happy: int = field(default=0, init=False)
     minutes_since_last_poop: int = field(default=0, init=False)
@@ -85,6 +90,20 @@ class Pet:
             if self.minutes_since_last_poop >= 180:
                 self.poop_count += 1
                 self.minutes_since_last_poop = 0
+
+            # handle misbehavior checks
+            if not self.misbehaving:
+                self.minutes_since_last_misbehavior_check += 1
+                if self.minutes_since_last_misbehavior_check >= 30:
+                    self.misbehaving = True
+                    self.minutes_misbehaving = 0
+                    self.minutes_since_last_misbehavior_check = 0
+            else:
+                self.minutes_misbehaving += 1
+                if self.minutes_misbehaving >= 10:
+                    self.care_mistakes += 1
+                    self.misbehaving = False
+                    self.minutes_misbehaving = 0
 
 
             self._maybe_evolve()
@@ -132,6 +151,9 @@ class Pet:
 
     def discipline(self) -> None:
         """Discipline the pet."""
+        if self.misbehaving:
+            self.misbehaving = False
+            self.minutes_misbehaving = 0
         self.discipline_percent = min(100, self.discipline_percent + 25)
 
     def _maybe_evolve(self) -> None:
