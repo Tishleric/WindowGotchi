@@ -9,6 +9,15 @@ from src.pet_model import Pet, Stage
 class TestPetModel(unittest.TestCase):
     """Test cases for the Pet class."""
 
+    def test_initial_stage(self) -> None:
+        pet = Pet()
+        self.assertEqual(pet.stage, Stage.EGG)
+
+    def test_hatch_after_five_minutes(self) -> None:
+        pet = Pet()
+        pet.tick(5)
+        self.assertEqual(pet.stage, Stage.BABY)
+
     def test_feed_meal(self) -> None:
         pet = Pet()
         pet.hunger_hearts = 3

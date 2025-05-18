@@ -10,6 +10,7 @@ import random
 class Stage(Enum):
     """Life stages for the pet."""
 
+    EGG = "Egg"
     BABY = "Baby"
     CHILD = "Child"
     TEEN = "Teen"
@@ -22,7 +23,7 @@ class Pet:
     """Represents a virtual pet and its state."""
 
     age_minutes: int = 0
-    stage: Stage = Stage.BABY
+    stage: Stage = Stage.EGG
     hunger_hearts: int = 4
     happiness_hearts: int = 4
     discipline_percent: int = 0
@@ -111,7 +112,9 @@ class Pet:
 
     def _maybe_evolve(self) -> None:
         """Handle stage evolution based on age."""
-        if self.stage == Stage.BABY and self.age_minutes >= 65:
+        if self.stage == Stage.EGG and self.age_minutes >= 5:
+            self.stage = Stage.BABY
+        elif self.stage == Stage.BABY and self.age_minutes >= 65:
             self.stage = Stage.CHILD
         elif self.stage == Stage.CHILD and self.age_minutes >= 3 * 24 * 60:
             self.stage = Stage.TEEN
@@ -137,7 +140,7 @@ class Pet:
         """Create a Pet from saved data."""
         pet = cls()
         pet.age_minutes = int(data.get("age_minutes", 0))
-        pet.stage = Stage(data.get("stage", Stage.BABY.value))
+        pet.stage = Stage(data.get("stage", Stage.EGG.value))
         pet.hunger_hearts = int(data.get("hunger_hearts", 4))
         pet.happiness_hearts = int(data.get("happiness_hearts", 4))
         pet.discipline_percent = int(data.get("discipline_percent", 0))
