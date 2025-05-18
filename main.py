@@ -2,6 +2,7 @@
 """Simple Tkinter-based WindowGotchi application."""
 
 import tkinter as tk
+import signal
 
 from src.audio_manager import AudioManager
 from src.notification_manager import NotificationManager
@@ -35,11 +36,33 @@ class WindowGotchiApp:
         self.timer.start()
         self.update_status()
         root.protocol("WM_DELETE_WINDOW", self.on_close)
+        root.bind("<Unmap>", self.on_minimize)
+        root.bind("<Map>", self.on_restore)
+        try:
+            signal.signal(signal.SIGUSR1, lambda s, f: self.on_suspend())
+            signal.signal(signal.SIGUSR2, lambda s, f: self.on_resume())
+        except AttributeError:
+            pass
 
     def on_close(self) -> None:
         self.timer.stop()
         save_pet(self.pet)
         self.root.destroy()
+
+    def on_minimize(self, _event=None) -> None:
+        if self.root.state() == "iconic":
+            self.timer.pause()
+
+    def on_restore(self, _event=None) -> None:
+        if self.root.state() != "iconic":
+            self.timer.resume()
+
+    def on_suspend(self) -> None:
+        self.timer.pause()
+        save_pet(self.pet)
+
+    def on_resume(self) -> None:
+        self.timer.resume()
 
     def update_status(self) -> None:
         if self.pet.stage == Stage.DEAD:
