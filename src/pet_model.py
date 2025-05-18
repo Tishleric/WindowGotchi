@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
+import random
 
 # Evolution and lifespan thresholds (in minutes)
 CHILD_AGE_MINUTES = 65
